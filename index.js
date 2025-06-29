@@ -1,35 +1,45 @@
-module.exports = (Command) => {
-    class SetGroupCommand extends Command {
-        constructor() {
-            super({
-                name: 'setgroup',
-                aliases: ['sg', 'setg'],
-                description: 'Выдает или забирает группу у пользователя.',
-                permissions: 'admin.setgroup',
-                owner: 'plugin:base-commands',
-                allowedChatTypes: ['chat', 'private', 'clan'],
-                args: [
-                    { name: 'username', type: 'string', required: true, description: 'Ник пользователя' },
-                    { name: 'groupname', type: 'string', required: true, description: 'Название группы' }
-                ]
-            });
-        }
+const PLUGIN_OWNER_ID = 'plugin:base-commands';
 
-        async handler(bot, typeChat, user, { username, groupname }) {
-            try {
-                const result = await bot.api.performUserAction(username, 'toggle_group', { groupName: groupname });
+const createSetBlacklistCommand = require('./commands/setblacklist');
+const createSetGroupCommand = require('./commands/setgroup');
 
-                const actionText = result.actionTaken === 'added' ? '&bвыдана' : '&cотозвана';
-                const reply = `&aГруппа &e${groupname}&a была успешно ${actionText}&a пользователю &e${username}&a.`;
 
-                bot.api.sendMessage(typeChat, reply, user.username);
+async function onLoad(bot, options) {
+    const log = bot.sendLog;
 
-            } catch (error) {
-                const errorMessage = typeof error.message === 'object' ? JSON.stringify(error.message) : error.message;
-                bot.sendLog(`[BaseCommands|setgroup] Ошибка: ${errorMessage}`);
-                bot.api.sendMessage(typeChat, `&cОшибка: &f${errorMessage}`, user.username);
-            }
-        }
+    const SetBlacklistCommand = createSetBlacklistCommand(bot);
+    const SetGroupCommand = createSetGroupCommand(bot);
+
+    try {
+        await bot.api.registerPermissions([
+            { name: 'admin.setblacklist', description: 'Доступ к команде setblacklist', owner: PLUGIN_OWNER_ID },
+            { name: 'admin.setgroup', description: 'Доступ к команде setgroup', owner: PLUGIN_OWNER_ID },
+        ]);
+
+        await bot.api.addPermissionsToGroup('Admin', ['admin.setblacklist', 'admin.setgroup']);
+
+        await bot.api.registerCommand(new SetBlacklistCommand());
+        await bot.api.registerCommand(new SetGroupCommand());
+
+        log('[BaseCommands] Плагин базовых команд успешно загружен.');
+    } catch (error) {
+        log(`[BaseCommands] [FATAL] Ошибка при загрузке плагина: ${error.stack}`);
     }
-    return SetGroupCommand;
+}
+
+
+async function onUnload({ botId, prisma }) {
+    console.log(`[BaseCommands] Начало процедуры удаления для бота ID: ${botId}`);
+    try {
+        await prisma.command.deleteMany({ where: { botId, owner: PLUGIN_OWNER_ID } });
+        await prisma.permission.deleteMany({ where: { botId, owner: PLUGIN_OWNER_ID } });
+        console.log(`[BaseCommands] Команды и права плагина успешно удалены из БД.`);
+    } catch (error) {
+        console.error(`[BaseCommands] Ошибка во время очистки ресурсов плагина:`, error);
+    }
+}
+
+module.exports = {
+    onLoad,
+    onUnload
 };
