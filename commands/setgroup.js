@@ -1,5 +1,5 @@
-module.exports = (Command) => {
-    class SetGroupCommand extends Command {
+module.exports = (bot) => {
+    class SetGroupCommand extends bot.api.Command {
         constructor() {
             super({
                 name: 'setgroup',
@@ -25,8 +25,9 @@ module.exports = (Command) => {
                 bot.api.sendMessage(typeChat, reply, user.username);
 
             } catch (error) {
-                bot.sendLog(`[BaseCommands|setgroup] Ошибка: ${error.message}`);
-                bot.api.sendMessage(typeChat, `&cОшибка: &f${error.message}`, user.username);
+                const errorMessage = typeof error.message === 'object' ? JSON.stringify(error.message) : error.message;
+                bot.sendLog(`[BaseCommands|setgroup] Ошибка: ${errorMessage}`);
+                bot.api.sendMessage(typeChat, `&cОшибка: &f${errorMessage}`, user.username);
             }
         }
     }
