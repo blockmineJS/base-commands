@@ -1,5 +1,5 @@
-module.exports = (Command) => {
-    class SetBlacklistCommand extends Command {
+module.exports = (bot) => {
+    class SetBlacklistCommand extends bot.api.Command {
         constructor() {
             super({
                 name: 'setblacklist',
