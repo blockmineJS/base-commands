@@ -17,15 +17,29 @@ module.exports = (bot) => {
 
         async handler(bot, typeChat, user, { username, groupname }) {
             try {
-                const result = await bot.api.performUserAction(username, 'toggle_group', { groupName: groupname });
+                const currentGroups = await bot.api.performUserAction(username, 'getGroups');
+                
+                const hasGroup = currentGroups.includes(groupname);
+                
+                let actionText;
+                if (hasGroup) {
+                    await bot.api.performUserAction(username, 'removeGroup', { group: groupname });
+                    actionText = '&cудалена';
+                } else {
+                    await bot.api.performUserAction(username, 'addGroup', { group: groupname });
+                    actionText = '&bдобавлена';
+                }
 
-                const actionText = result.actionTaken === 'added' ? '&bвыдана' : '&cотозвана';
-                const reply = `&aГруппа &e${groupname}&a была успешно ${actionText}&a пользователю &e${username}&a.`;
-
+                const reply = `&aГруппа &e${groupname}&a ${actionText}&a у пользователя &e${username}&a.`;
                 bot.api.sendMessage(typeChat, reply, user.username);
 
             } catch (error) {
-                const errorMessage = typeof error.message === 'object' ? JSON.stringify(error.message) : error.message;
+                let errorMessage = 'Неизвестная ошибка';
+                if (typeof error === 'object' && error !== null) {
+                    errorMessage = error.message || JSON.stringify(error);
+                } else {
+                    errorMessage = error;
+                }
                 bot.sendLog(`[BaseCommands|setgroup] Ошибка: ${errorMessage}`);
                 bot.api.sendMessage(typeChat, `&cОшибка: &f${errorMessage}`, user.username);
             }

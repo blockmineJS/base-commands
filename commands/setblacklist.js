@@ -14,9 +14,10 @@ module.exports = (bot) => {
 
         async handler(bot, typeChat, user, { username }) {
             try {
-                const result = await bot.api.performUserAction(username, 'toggle_blacklist');
+                const currentStatus = await bot.api.performUserAction(username, 'isBlacklisted');
                 
-                const newStatus = result.newStatus;
+                const newStatus = !currentStatus;
+                await bot.api.performUserAction(username, 'setBlacklisted', { value: newStatus });
                 
                 const reply = newStatus 
                     ? `&aПользователь &e${username}&a был добавлен в &8черный список&a.`

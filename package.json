@@ -1,12 +1,16 @@
 {
-    "name": "base-commands",
-    "version": "1.0.2",
-    "description": "Даёт новые команды для использования: setblacklist, setgroup",
-    "main": "index.js",
-    "author": "blockmineJS",
-    "botpanel": {
-      "dependencies": {
-        "parser-keksik": "*"
-      }
+  "name": "base-commands",
+  "version": "1.0.3",
+  "description": "Даёт новые команды для использования:  setblacklist, setgroup",
+  "main": "index.js",
+  "author": "blockmineJS",
+  "botpanel": {
+    "dependencies": {
+      "parser-keksik": "*"
     }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/blockmineJS/base-commands.git"
   }
+}
