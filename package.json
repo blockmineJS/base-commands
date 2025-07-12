@@ -1,6 +1,7 @@
 {
   "name": "base-commands",
   "version": "1.0.3",
+  "displayName": "Базовые админ команды",
   "description": "Даёт новые команды для использования:  setblacklist, setgroup",
   "main": "index.js",
   "author": "blockmineJS",
