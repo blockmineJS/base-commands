@@ -1,13 +1,35 @@
 {
   "name": "base-commands",
-  "version": "1.0.3",
-  "displayName": "Базовые админ команды",
-  "description": "Даёт новые команды для использования:  setblacklist, setgroup",
+  "version": "1.0.5",
+  "description": "Даёт новые команды для использования: setblacklist, setgroup",
   "main": "index.js",
   "author": "blockmineJS",
   "botpanel": {
-    "dependencies": {
-      "parser-keksik": "*"
+    "settings": {
+      "setgroup_added": {
+        "type": "string",
+        "label": "Сообщение при добавлении группы",
+        "description": "Используйте переменные {user} и {group}",
+        "default": "&aГруппа &e{group}&a &bдобавлена&a пользователю &e{user}&a."
+      },
+      "setgroup_removed": {
+        "type": "string",
+        "label": "Сообщение при удалении группы",
+        "description": "Используйте переменные {user} и {group}",
+        "default": "&aГруппа &e{group}&a &cудалена&a у пользователя &e{user}&a."
+      },
+      "setblacklist_added": {
+        "type": "string",
+        "label": "Сообщение при добавлении в ЧС",
+        "description": "Используйте переменную {user}",
+        "default": "&aПользователь &e{user}&a был добавлен в &8черный список&a."
+      },
+      "setblacklist_removed": {
+        "type": "string",
+        "label": "Сообщение при удалении из ЧС",
+        "description": "Используйте переменную {user}",
+        "default": "&aПользователь &e{user}&a был удален из &8черного списка&a."
+      }
     }
   },
   "repository": {

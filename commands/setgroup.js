@@ -1,6 +1,6 @@
 module.exports = (bot) => {
     class SetGroupCommand extends bot.api.Command {
-        constructor() {
+        constructor(settings = {}) {
             super({
                 name: 'setgroup',
                 aliases: ['sg', 'setg'],
@@ -13,6 +13,7 @@ module.exports = (bot) => {
                     { name: 'groupname', type: 'string', required: true, description: 'Название группы' }
                 ]
             });
+            this.settings = settings;
         }
 
         async handler(bot, typeChat, user, { username, groupname }) {
@@ -21,27 +22,37 @@ module.exports = (bot) => {
                 
                 const hasGroup = currentGroups.includes(groupname);
                 
-                let actionText;
                 if (hasGroup) {
                     await bot.api.performUserAction(username, 'removeGroup', { group: groupname });
-                    actionText = '&cудалена';
+                    const messageTemplate = this.settings?.setgroup_removed || '&aГруппа &e{group}&a &cудалена&a у пользователя &e{user}&a.';
+                    const reply = messageTemplate
+                        .replace('{group}', groupname)
+                        .replace('{user}', username);
+                    bot.api.sendMessage(typeChat, reply, user.username);
                 } else {
                     await bot.api.performUserAction(username, 'addGroup', { group: groupname });
-                    actionText = '&bдобавлена';
+                    const messageTemplate = this.settings?.setgroup_added || '&aГруппа &e{group}&a &bдобавлена&a пользователю &e{user}&a.';
+                    const reply = messageTemplate
+                        .replace('{group}', groupname)
+                        .replace('{user}', username);
+                    bot.api.sendMessage(typeChat, reply, user.username);
                 }
-
-                const reply = `&aГруппа &e${groupname}&a ${actionText}&a у пользователя &e${username}&a.`;
-                bot.api.sendMessage(typeChat, reply, user.username);
 
             } catch (error) {
                 let errorMessage = 'Неизвестная ошибка';
                 if (typeof error === 'object' && error !== null) {
-                    errorMessage = error.message || JSON.stringify(error);
+                    if (error.message) {
+                        errorMessage = error.message;
+                    } else if (error.code === 'P2002') {
+                        errorMessage = 'Пользователь уже существует в базе данных';
+                    } else {
+                        errorMessage = JSON.stringify(error);
+                    }
                 } else {
-                    errorMessage = error;
+                    errorMessage = String(error);
                 }
-                bot.sendLog(`[BaseCommands|setgroup] Ошибка: ${errorMessage}`);
-                bot.api.sendMessage(typeChat, `&cОшибка: &f${errorMessage}`, user.username);
+                bot.sendLog(`[BaseCommands|setgroup] Ошибка при работе с пользователем ${username}: ${errorMessage}`);
+                bot.api.sendMessage(typeChat, `&cОшибка при работе с пользователем &e${username}&c: &f${errorMessage}`, user.username);
             }
         }
     }

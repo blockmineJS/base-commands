@@ -6,6 +6,7 @@ const createSetGroupCommand = require('./commands/setgroup');
 
 async function onLoad(bot, options) {
     const log = bot.sendLog;
+    const settings = options.settings || {};
 
     const SetBlacklistCommand = createSetBlacklistCommand(bot);
     const SetGroupCommand = createSetGroupCommand(bot);
@@ -18,8 +19,8 @@ async function onLoad(bot, options) {
 
         await bot.api.addPermissionsToGroup('Admin', ['admin.setblacklist', 'admin.setgroup']);
 
-        await bot.api.registerCommand(new SetBlacklistCommand());
-        await bot.api.registerCommand(new SetGroupCommand());
+        await bot.api.registerCommand(new SetBlacklistCommand(settings));
+        await bot.api.registerCommand(new SetGroupCommand(settings));
 
         log('[BaseCommands] Плагин базовых команд успешно загружен.');
     } catch (error) {
